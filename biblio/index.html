@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bibliographie PFE</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --surface-2: #1e222b;
+    --border: #2a2f3a;
+    --text: #e6e8ec;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --row-hover: #222734;
+    --st-alire: #8b93a3;
+    --st-encours: #f0b45a;
+    --st-lu: #5fcf8f;
+    --radius: 8px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  h1 { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  input[type="search"], select {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 7px 10px;
+    font: inherit;
+  }
+  input[type="search"] { flex: 1 1 260px; min-width: 0; }
+  input:focus-visible, select:focus-visible, button:focus-visible, tr:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .count { color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+  main { flex: 1; min-height: 0; padding: 12px 20px 20px; display: flex; }
+  .table-wrap {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+  th, td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface-2);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: var(--accent); }
+  thead th .arrow { display: inline-block; width: 1em; color: var(--accent); }
+  /* Première colonne (titre) figée lors du défilement horizontal */
+  th:first-child, td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--surface);
+    z-index: 1;
+    border-right: 1px solid var(--border);
+  }
+  thead th:first-child { z-index: 3; background: var(--surface-2); }
+  td .cell {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  td:first-child .cell { max-width: 320px; font-weight: 500; }
+  td.narrow .cell { max-width: 90px; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--row-hover); }
+  tbody tr.selected td { background: #26304a; }
+  .empty { padding: 32px; text-align: center; color: var(--muted); }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .st-alire { color: var(--st-alire); }
+  .st-encours { color: var(--st-encours); }
+  .st-lu { color: var(--st-lu); }
+
+  /* Panneau latéral */
+  .backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+    z-index: 10;
+  }
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(560px, 100vw);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform .2s ease;
+    z-index: 11;
+    display: flex; flex-direction: column;
+  }
+  body.panel-open .backdrop { opacity: 1; pointer-events: auto; }
+  body.panel-open .panel { transform: none; }
+  .panel-head {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .panel-head h2 { margin: 0; font-size: 16px; flex: 1; }
+  .close {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: var(--radius); padding: 4px 10px; cursor: pointer; font: inherit;
+  }
+  .close:hover { border-color: var(--accent); }
+  .panel-body { overflow: auto; padding: 8px 20px 24px; }
+  dl { margin: 0; }
+  dt {
+    margin-top: 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted);
+  }
+  dd { margin: 4px 0 0; white-space: pre-wrap; word-break: break-word; }
+  a { color: var(--accent); }
+  .muted { color: var(--muted); }
+
+  .error {
+    margin: 20px; padding: 16px; border: 1px solid #a85454;
+    border-radius: var(--radius); background: #2a1a1a;
+  }
+  .error code { background: #00000040; padding: 1px 5px; border-radius: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel, .backdrop { transition: none; }
+  }
+  @media (max-width: 600px) {
+    header, main { padding-left: 12px; padding-right: 12px; }
+    .count { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Bibliographie PFE</h1>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Rechercher dans tous les champs…" aria-label="Rechercher">
+    <select id="f-statut" aria-label="Filtrer par statut">
+      <option value="">Tous les statuts</option>
+    </select>
+    <select id="f-lecteur" aria-label="Filtrer par lecteur">
+      <option value="">Tous les lecteurs</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
+</header>
+
+<main>
+  <div class="table-wrap" id="wrap">
+    <table>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+</main>
+
+<div class="backdrop" id="backdrop"></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" hidden>
+  <div class="panel-head">
+    <h2 id="panel-title"></h2>
+    <button class="close" id="close" type="button" aria-label="Fermer la fiche">Fermer ✕</button>
+  </div>
+  <div class="panel-body"><dl id="panel-content"></dl></div>
+</aside>
+
+<script>
+(() => {
+  // Ordre et libellés des champs
+  const FIELDS = [
+    ["titre", "Titre"],
+    ["annee", "Année"],
+    ["statut", "Statut"],
+    ["lu_par", "Lu par"],
+    ["modele_detection", "Modèle de détection"],
+    ["transfer_learning", "Transfer learning"],
+    ["pipeline", "Pipeline"],
+    ["quelles_images", "Quelles images"],
+    ["combien_images", "Combien d'images"],
+    ["annotation", "Annotation"],
+    ["pretraitement", "Prétraitement"],
+    ["entrainement", "Entraînement"],
+    ["validation", "Validation"],
+    ["resultats", "Résultats"],
+    ["limites", "Limites"],
+    ["metriques_collision", "Métriques collision"],
+    ["lien", "Lien"]
+  ];
+  const NARROW = new Set(["annee", "statut", "transfer_learning"]);
+  const STATUTS = ["à lire", "en cours", "lu"];
+
+  const $ = (id) => document.getElementById(id);
+  const state = { data: [], sortKey: "titre", sortDir: 1, q: "", statut: "", lecteur: "", openIdx: null, lastFocus: null };
+
+  const toText = (v) => v == null ? "" : Array.isArray(v) ? v.join(", ") : String(v);
+  const norm = (s) => toText(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const readers = (a) => toText(a.lu_par).split(/[,;/]/).map(s => s.trim()).filter(Boolean);
+  const statusClass = (s) => ({ "a lire": "st-alire", "en cours": "st-encours", "lu": "st-lu" })[norm(s)] || "";
+  const esc = (s) => toText(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const safeUrl = (u) => /^https?:\/\//i.test(toText(u).trim()) ? toText(u).trim() : null;
+
+  function renderHead() {
+    $("head").innerHTML = FIELDS.map(([k, label]) => {
+      const active = state.sortKey === k;
+      const arrow = active ? (state.sortDir === 1 ? "▲" : "▼") : "";
+      const aria = active ? (state.sortDir === 1 ? "ascending" : "descending") : "none";
+      return `<th data-key="${k}" tabindex="0" aria-sort="${aria}">${label} <span class="arrow">${arrow}</span></th>`;
+    }).join("");
+  }
+
+  function fillFilters() {
+    const statuts = [...new Set([...STATUTS, ...state.data.map(a => toText(a.statut)).filter(Boolean)])];
+    $("f-statut").innerHTML = `<option value="">Tous les statuts</option>` +
+      statuts.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+    const lecteurs = [...new Set(state.data.flatMap(readers))].sort((a, b) => a.localeCompare(b, "fr"));
+    $("f-lecteur").innerHTML = `<option value="">Tous les lecteurs</option>` +
+      lecteurs.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  }
+
+  function compare(a, b) {
+    const k = state.sortKey;
+    const va = a[k], vb = b[k];
+    if (k === "statut") {
+      const ia = STATUTS.indexOf(norm(va).replace("a lire", "à lire"));
+      const ib = STATUTS.indexOf(norm(vb).replace("a lire", "à lire"));
+      return (ia - ib) * state.sortDir;
+    }
+    const empty = (v) => v == null || toText(v) === "";
+    if (empty(va) && empty(vb)) return 0;
+    if (empty(va)) return 1;          // vides toujours en bas
+    if (empty(vb)) return -1;
+    const na = Number(va), nb = Number(vb);
+    if (!isNaN(na) && !isNaN(nb)) return (na - nb) * state.sortDir;
+    return toText(va).localeCompare(toText(vb), "fr", { sensitivity: "base", numeric: true }) * state.sortDir;
+  }
+
+  function filtered() {
+    const q = norm(state.q).trim();
+    return state.data
+      .map((a, i) => ({ a, i }))
+      .filter(({ a }) => !state.statut || norm(a.statut) === norm(state.statut))
+      .filter(({ a }) => !state.lecteur || readers(a).includes(state.lecteur))
+      .filter(({ a }) => !q || FIELDS.some(([k]) => norm(a[k]).includes(q)))
+      .sort((x, y) => compare(x.a, y.a));
+  }
+
+  function cell(k, v) {
+    if (k === "statut" && toText(v)) return `<span class="badge ${statusClass(v)}">${esc(v)}</span>`;
+    if (k === "lien") {
+      const u = safeUrl(v);
+      return u ? `<a href="${esc(u)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(u)}</a>` : esc(v);
+    }
+    return esc(v);
+  }
+
+  function renderBody() {
+    const rows = filtered();
+    $("count").textContent = `${rows.length} / ${state.data.length} article${state.data.length > 1 ? "s" : ""}`;
+    if (!rows.length) {
+      $("body").innerHTML = `<tr><td colspan="${FIELDS.length}" class="empty">Aucun article ne correspond.</td></tr>`;
+      return;
+    }
+    $("body").innerHTML = rows.map(({ a, i }) =>
+      `<tr data-idx="${i}" tabindex="0" class="${state.openIdx === i ? "selected" : ""}">` +
+      FIELDS.map(([k]) => `<td class="${NARROW.has(k) ? "narrow" : ""}"><div class="cell" title="${esc(a[k])}">${cell(k, a[k])}</div></td>`).join("") +
+      `</tr>`
+    ).join("");
+  }
+
+  function openPanel(idx) {
+    const a = state.data[idx];
+    if (!a) return;
+    state.lastFocus = document.activeElement;
+    state.openIdx = idx;
+    $("panel-title").textContent = toText(a.titre) || "(sans titre)";
+    $("panel-content").innerHTML = FIELDS.filter(([k]) => k !== "titre").map(([k, label]) => {
+      const v = a[k];
+      let html = toText(v) === "" ? `<span class="muted">—</span>` : cell(k, v);
+      return `<dt>${label}</dt><dd>${html}</dd>`;
+    }).join("");
+    $("panel").hidden = false;
+    requestAnimationFrame(() => document.body.classList.add("panel-open"));
+    $("close").focus();
+    renderBody();
+  }
+
+  function closePanel() {
+    document.body.classList.remove("panel-open");
+    state.openIdx = null;
+    setTimeout(() => { if (!document.body.classList.contains("panel-open")) $("panel").hidden = true; }, 220);
+    renderBody();
+    if (state.lastFocus && document.contains(state.lastFocus)) state.lastFocus.focus();
+  }
+
+  function setSort(k) {
+    if (state.sortKey === k) state.sortDir *= -1;
+    else { state.sortKey = k; state.sortDir = 1; }
+    renderHead(); renderBody();
+  }
+
+  // Événements
+  $("head").addEventListener("click", e => { const th = e.target.closest("th"); if (th) setSort(th.dataset.key); });
+  $("head").addEventListener("keydown", e => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches("th")) { e.preventDefault(); setSort(e.target.dataset.key); }
+  });
+  $("body").addEventListener("click", e => { const tr = e.target.closest("tr[data-idx]"); if (tr) openPanel(+tr.dataset.idx); });
+  $("body").addEventListener("keydown", e => {
+    const tr = e.target.closest("tr[data-idx]");
+    if (tr && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openPanel(+tr.dataset.idx); }
+  });
+  $("q").addEventListener("input", e => { state.q = e.target.value; renderBody(); });
+  $("f-statut").addEventListener("change", e => { state.statut = e.target.value; renderBody(); });
+  $("f-lecteur").addEventListener("change", e => { state.lecteur = e.target.value; renderBody(); });
+  $("close").addEventListener("click", closePanel);
+  $("backdrop").addEventListener("click", closePanel);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && state.openIdx !== null) closePanel(); });
+
+  // Chargement
+  renderHead();
+  fetch("articles.json", { cache: "no-store" })
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+    .then(data => {
+      if (!Array.isArray(data)) throw new Error("articles.json doit contenir une liste (tableau JSON).");
+      state.data = data;
+      fillFilters();
+      renderBody();
+    })
+    .catch(err => {
+      const fileProto = location.protocol === "file:";
+      $("wrap").innerHTML = `<div class="error"><strong>Impossible de charger <code>articles.json</code>.</strong><br>${esc(err.message)}` +
+        (fileProto ? `<br><br>La page est ouverte directement depuis le disque : le navigateur bloque la lecture du JSON.
+          Lancez un petit serveur dans ce dossier, par exemple <code>python -m http.server</code>, puis ouvrez
+          <code>http://localhost:8000</code>. Sur GitHub Pages, ça fonctionne tel quel.` : "") + `</div>`;
+    });
+})();
+</script>
+</body>
+</html>

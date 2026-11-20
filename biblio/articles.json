@@ -1,0 +1,21 @@
+[
+  {
+    "titre": "EXEMPLE — Détection d'obstacles par caméra embarquée pour l'anticipation de collisions (article fictif, à remplacer)",
+    "lien": "https://example.org/article-exemple",
+    "annee": 2023,
+    "pipeline": "Acquisition vidéo → extraction d'images clés → détection d'objets → suivi multi-objets → estimation du temps avant collision (TTC) → alerte.",
+    "quelles_images": "Images RGB issues d'une caméra frontale embarquée, conditions de jour et de nuit, milieu urbain.",
+    "combien_images": "12 000 images annotées (8 400 entraînement / 1 800 validation / 1 800 test).",
+    "annotation": "Boîtes englobantes sur 4 classes (piéton, cycliste, véhicule, obstacle statique), annotation manuelle avec double vérification.",
+    "pretraitement": "Redimensionnement en 640×640, normalisation, augmentation (flip horizontal, variations de luminosité, flou de mouvement).",
+    "modele_detection": "YOLOv5s",
+    "transfer_learning": "oui",
+    "entrainement": "Poids pré-entraînés COCO, 100 époques, SGD, lr initial 0,01 avec décroissance cosinus, batch 32, une GPU.",
+    "validation": "Découpage 70/15/15 par séquence vidéo (pas d'images d'une même séquence dans deux ensembles).",
+    "resultats": "mAP@0.5 de 0,78 sur le test ; 35 images/s en inférence.",
+    "limites": "Performances en baisse la nuit et sous la pluie ; jeu de données d'une seule ville ; pas de test en conditions réelles.",
+    "metriques_collision": "Temps avant collision (TTC), taux de fausses alertes, délai d'alerte moyen.",
+    "statut": "lu",
+    "lu_par": "Tom"
+  }
+]

@@ -6,35 +6,75 @@
 <title>Bibliographie PFE</title>
 <style>
   :root {
-    --bg: #0f1115;
-    --surface: #171a21;
-    --surface-2: #1e222b;
-    --border: #2a2f3a;
-    --text: #e6e8ec;
-    --muted: #9aa3b2;
-    --accent: #6ea8fe;
-    --row-hover: #222734;
-    --st-alire: #8b93a3;
-    --st-encours: #f0b45a;
-    --st-lu: #5fcf8f;
-    --radius: 8px;
     color-scheme: dark;
+    --bg: #0e1014;
+    --surface: #161920;
+    --surface-2: #1d212a;
+    --surface-3: #252a35;
+    --border: #2b3140;
+    --text: #e7e9ee;
+    --muted: #9ba3b4;
+    --accent: #7cb0ff;
+    --row-hover: #1f2430;
+    --row-selected: #232c42;
+
+    /* Thèmes (champ "tache") */
+    --t-detection: #4c9dff;
+    --t-suivi: #3fc77a;
+    --t-trajectoire: #a77bff;
+    --t-collision: #ff7a45;
+    --t-autre: #8a93a6;
+
+    /* Statuts */
+    --st-alire: #9ba3b4;
+    --st-encours: #f2b84b;
+    --st-lu: #4fd18b;
+
+    --star: #f5c542;
+    --radius: 8px;
+    --title-col: 320px;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
   body {
     background: var(--bg);
     color: var(--text);
-    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     display: flex;
     flex-direction: column;
   }
+  a { color: var(--accent); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- En-tête de page ---------- */
   header {
     padding: 16px 20px 12px;
-    border-bottom: 1px solid var(--border);
     background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    gap: 12px;
   }
-  h1 { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
+  .title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 18px; font-weight: 650; }
+  .count { color: var(--muted); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .legend-label { color: var(--muted); font-size: 13px; margin-right: 2px; }
+  .theme-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 4px 11px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .theme-btn .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--t-autre)); }
+  .theme-btn .n { color: var(--muted); }
+  .theme-btn[aria-pressed="true"] { border-color: var(--c, var(--accent)); background: var(--surface-3); box-shadow: inset 0 0 0 1px var(--c, var(--accent)); }
+  @media (hover: hover) and (pointer: fine) { .theme-btn:hover { border-color: var(--c, var(--accent)); } }
+
   .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   input[type="search"], select {
     background: var(--surface-2);
@@ -44,116 +84,166 @@
     padding: 7px 10px;
     font: inherit;
   }
-  input[type="search"] { flex: 1 1 260px; min-width: 0; }
-  input:focus-visible, select:focus-visible, button:focus-visible, tr:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
+  select:disabled { opacity: .5; }
+  input[type="search"] { flex: 1 1 280px; min-width: 0; }
+  .reset {
+    background: none; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 7px 12px; cursor: pointer; color: var(--muted);
   }
-  .count { color: var(--muted); margin-left: auto; white-space: nowrap; }
+  .reset:hover { color: var(--text); border-color: var(--accent); }
 
-  main { flex: 1; min-height: 0; padding: 12px 20px 20px; display: flex; }
+  /* ---------- Tableau ---------- */
+  main { flex: 1; min-height: 0; display: flex; padding: 12px 20px 20px; }
   .table-wrap {
-    flex: 1;
-    overflow: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    flex: 1; overflow: auto;
+    border: 1px solid var(--border); border-radius: var(--radius);
     background: var(--surface);
   }
-  table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+  table { border-collapse: separate; border-spacing: 0; table-layout: fixed; }
   th, td {
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-bottom: 1px solid var(--border);
+    border-right: 1px solid #222734;
     text-align: left;
     vertical-align: top;
+    overflow-wrap: anywhere;
   }
   thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--surface-2);
+    position: sticky; top: 0; z-index: 2;
+    background: var(--surface-3);
+    font-weight: 600; font-size: 13px;
+    padding: 0;
+    overflow-wrap: normal;
+  }
+  thead th button {
+    display: flex; align-items: center; gap: 6px; justify-content: space-between;
+    width: 100%; padding: 10px 12px;
+    background: none; border: 0; cursor: pointer; text-align: left;
     font-weight: 600;
-    white-space: nowrap;
-    cursor: pointer;
-    user-select: none;
   }
-  thead th:hover { color: var(--accent); }
-  thead th .arrow { display: inline-block; width: 1em; color: var(--accent); }
-  /* Première colonne (titre) figée lors du défilement horizontal */
-  th:first-child, td:first-child {
-    position: sticky;
-    left: 0;
-    background: var(--surface);
+  thead th button:hover { color: var(--accent); }
+  .arrow { color: var(--accent); font-size: 11px; min-width: 10px; }
+
+  /* Colonne titre figée à gauche, avec bande de couleur du thème */
+  th:first-child, td:first-child { position: sticky; left: 0; }
+  td:first-child {
     z-index: 1;
-    border-right: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: inset 5px 0 0 var(--c, var(--t-autre)), 1px 0 0 var(--border);
+    padding-left: 18px;
   }
-  thead th:first-child { z-index: 3; background: var(--surface-2); }
-  td .cell {
-    max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  td:first-child .cell { max-width: 320px; font-weight: 500; }
-  td.narrow .cell { max-width: 90px; }
+  thead th:first-child { z-index: 3; box-shadow: 1px 0 0 var(--border); }
+
   tbody tr { cursor: pointer; }
-  tbody tr:hover td { background: var(--row-hover); }
-  tbody tr.selected td { background: #26304a; }
-  .empty { padding: 32px; text-align: center; color: var(--muted); }
+  @media (hover: hover) and (pointer: fine) {
+    tbody tr:hover td { background: var(--row-hover); }
+  }
+  tbody tr.selected td { background: var(--row-selected); }
+  tbody tr:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .t-title { font-weight: 600; line-height: 1.35; }
+  .t-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+  /* Texte long : 4 lignes maximum, puis « voir plus » */
+  .clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+    white-space: pre-line;
+  }
+  .clamp.open { display: block; -webkit-line-clamp: unset; line-clamp: none; overflow: visible; }
+  .more {
+    margin-top: 4px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    color: var(--accent); font-size: 12px;
+  }
+  .more:hover { text-decoration: underline; }
+
+  /* Étiquettes */
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .tag {
+    display: inline-block;
+    padding: 1px 9px;
+    border-radius: 999px;
+    font-size: 11.5px; line-height: 1.6;
+    color: hsl(var(--h) 85% 82%);
+    background: hsl(var(--h) 40% 21%);
+    border: 1px solid hsl(var(--h) 40% 34%);
+    cursor: pointer;
+  }
+  .tag.active { outline: 2px solid hsl(var(--h) 85% 70%); outline-offset: 1px; }
+  .theme-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; white-space: nowrap;
+  }
+  .theme-pill::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--t-autre)); }
 
   .badge {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    border: 1px solid currentColor;
-    white-space: nowrap;
+    display: inline-block; padding: 1px 9px;
+    border-radius: 999px; border: 1px solid currentColor;
+    font-size: 12px; white-space: nowrap;
   }
   .st-alire { color: var(--st-alire); }
   .st-encours { color: var(--st-encours); }
   .st-lu { color: var(--st-lu); }
 
-  /* Panneau latéral */
+  .stars { color: var(--star); letter-spacing: 1px; white-space: nowrap; font-size: 15px; }
+  .stars .off { color: #4a5060; }
+
+  .muted { color: var(--muted); }
+  .empty { padding: 40px; text-align: center; color: var(--muted); }
+
+  /* ---------- Panneau latéral ---------- */
   .backdrop {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.45);
-    opacity: 0; pointer-events: none;
-    transition: opacity .2s;
-    z-index: 10;
+    position: fixed; inset: 0; z-index: 10;
+    background: rgba(0, 0, 0, .5);
+    opacity: 0; pointer-events: none; transition: opacity .2s;
   }
   .panel {
-    position: fixed; top: 0; right: 0; bottom: 0;
-    width: min(560px, 100vw);
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 11;
+    width: min(620px, 100vw);
     background: var(--surface);
-    border-left: 1px solid var(--border);
-    transform: translateX(100%);
-    transition: transform .2s ease;
-    z-index: 11;
+    border-left: 4px solid var(--c, var(--t-autre));
+    transform: translateX(100%); transition: transform .22s ease;
     display: flex; flex-direction: column;
   }
   body.panel-open .backdrop { opacity: 1; pointer-events: auto; }
   body.panel-open .panel { transform: none; }
-  .panel-head {
-    display: flex; gap: 12px; align-items: flex-start;
-    padding: 16px 20px; border-bottom: 1px solid var(--border);
-  }
-  .panel-head h2 { margin: 0; font-size: 16px; flex: 1; }
+  .panel-head { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: grid; gap: 8px; }
+  .panel-top { display: flex; gap: 12px; align-items: flex-start; }
+  .panel-head h2 { margin: 0; font-size: 17px; line-height: 1.35; flex: 1; }
   .close {
-    background: none; border: 1px solid var(--border); color: var(--text);
-    border-radius: var(--radius); padding: 4px 10px; cursor: pointer; font: inherit;
+    background: none; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 4px 10px; cursor: pointer; white-space: nowrap;
   }
   .close:hover { border-color: var(--accent); }
-  .panel-body { overflow: auto; padding: 8px 20px 24px; }
-  dl { margin: 0; }
-  dt {
-    margin-top: 14px;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--muted);
+  .panel-sub { color: var(--muted); font-size: 13px; }
+  .panel-badges { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .panel-head .tags:empty, .links:empty { display: none; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: var(--radius);
+    background: var(--surface-3); border: 1px solid var(--border);
+    text-decoration: none; color: var(--text); font-size: 13px;
   }
-  dd { margin: 4px 0 0; white-space: pre-wrap; word-break: break-word; }
-  a { color: var(--accent); }
-  .muted { color: var(--muted); }
+  .link-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .panel-body { overflow: auto; padding: 4px 22px 28px; }
+  .panel-body h3 {
+    margin: 22px 0 4px; font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--accent);
+  }
+  dl { margin: 0; }
+  dt { margin-top: 12px; font-size: 12px; color: var(--muted); }
+  dd { margin: 3px 0 0; white-space: pre-line; overflow-wrap: anywhere; }
+  .interet {
+    margin-top: 16px; padding: 12px 14px; border-radius: var(--radius);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--c, var(--accent));
+  }
 
   .error {
     margin: 20px; padding: 16px; border: 1px solid #a85454;
@@ -164,30 +254,32 @@
   @media (prefers-reduced-motion: reduce) {
     .panel, .backdrop { transition: none; }
   }
-  @media (max-width: 600px) {
+  @media (max-width: 640px) {
+    :root { --title-col: 200px; }
     header, main { padding-left: 12px; padding-right: 12px; }
-    .count { margin-left: 0; }
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>Bibliographie PFE</h1>
+  <div class="title-row">
+    <h1>Bibliographie PFE</h1>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+  <div class="legend" id="legend" role="group" aria-label="Thèmes (cliquer pour filtrer)"></div>
   <div class="controls">
-    <input type="search" id="q" placeholder="Rechercher dans tous les champs…" aria-label="Rechercher">
-    <select id="f-statut" aria-label="Filtrer par statut">
-      <option value="">Tous les statuts</option>
-    </select>
-    <select id="f-lecteur" aria-label="Filtrer par lecteur">
-      <option value="">Tous les lecteurs</option>
-    </select>
-    <span class="count" id="count"></span>
+    <input type="search" id="q" placeholder="Rechercher dans les titres et mots-clés…" aria-label="Rechercher dans les titres et mots-clés">
+    <select id="f-mot" aria-label="Filtrer par mot-clé"></select>
+    <select id="f-statut" aria-label="Filtrer par statut"></select>
+    <select id="f-lecteur" aria-label="Filtrer par lecteur"></select>
+    <button class="reset" id="reset" type="button">Réinitialiser</button>
   </div>
 </header>
 
 <main>
   <div class="table-wrap" id="wrap">
-    <table>
+    <table id="table">
+      <colgroup id="cols"></colgroup>
       <thead><tr id="head"></tr></thead>
       <tbody id="body"></tbody>
     </table>
@@ -195,181 +287,397 @@
 </main>
 
 <div class="backdrop" id="backdrop"></div>
-<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" hidden>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="p-title" hidden>
   <div class="panel-head">
-    <h2 id="panel-title"></h2>
-    <button class="close" id="close" type="button" aria-label="Fermer la fiche">Fermer ✕</button>
+    <div class="panel-top">
+      <h2 id="p-title"></h2>
+      <button class="close" id="close" type="button">Fermer ✕</button>
+    </div>
+    <div class="panel-sub" id="p-sub"></div>
+    <div class="panel-badges" id="p-badges"></div>
+    <div class="tags" id="p-tags"></div>
+    <div class="links" id="p-links"></div>
   </div>
-  <div class="panel-body"><dl id="panel-content"></dl></div>
+  <div class="panel-body" id="p-body"></div>
 </aside>
 
 <script>
 (() => {
-  // Ordre et libellés des champs
-  const FIELDS = [
-    ["titre", "Titre"],
-    ["annee", "Année"],
-    ["statut", "Statut"],
-    ["lu_par", "Lu par"],
-    ["modele_detection", "Modèle de détection"],
-    ["transfer_learning", "Transfer learning"],
-    ["pipeline", "Pipeline"],
-    ["quelles_images", "Quelles images"],
-    ["combien_images", "Combien d'images"],
-    ["annotation", "Annotation"],
-    ["pretraitement", "Prétraitement"],
-    ["entrainement", "Entraînement"],
-    ["validation", "Validation"],
-    ["resultats", "Résultats"],
-    ["limites", "Limites"],
-    ["metriques_collision", "Métriques collision"],
-    ["lien", "Lien"]
+  /* ===== Configuration ===== */
+
+  // Thèmes : clé normalisée (sans accent) → libellé + couleur
+  const THEMES = [
+    { key: "detection",   label: "Détection",   color: "var(--t-detection)" },
+    { key: "suivi",       label: "Suivi",       color: "var(--t-suivi)" },
+    { key: "trajectoire", label: "Trajectoire", color: "var(--t-trajectoire)" },
+    { key: "collision",   label: "Collision",   color: "var(--t-collision)" },
   ];
-  const NARROW = new Set(["annee", "statut", "transfer_learning"]);
   const STATUTS = ["à lire", "en cours", "lu"];
 
-  const $ = (id) => document.getElementById(id);
-  const state = { data: [], sortKey: "titre", sortDir: 1, q: "", statut: "", lecteur: "", openIdx: null, lastFocus: null };
+  // Colonnes du tableau : clé du JSON, libellé, largeur en px, type d'affichage
+  const COLUMNS = [
+    { key: "titre",               label: "Article",             w: 0,   kind: "title" }, // largeur = --title-col
+    { key: "tache",               label: "Thème",               w: 120, kind: "theme" },
+    { key: "pertinence",          label: "Pertinence",          w: 110, kind: "stars" },
+    { key: "statut",              label: "Statut",              w: 105, kind: "status" },
+    { key: "lu_par",              label: "Lu par",              w: 110 },
+    { key: "annee",               label: "Année",               w: 90 },
+    { key: "type",                label: "Type",                w: 140 },
+    { key: "modele_detection",    label: "Modèle",              w: 200, kind: "long" },
+    { key: "transfer_learning",   label: "Transfer learning",   w: 200, kind: "long" },
+    { key: "quelles_images",      label: "Quelles images",      w: 240, kind: "long" },
+    { key: "combien_images",      label: "Combien d'images",    w: 200, kind: "long" },
+    { key: "annotation",          label: "Annotation",          w: 230, kind: "long" },
+    { key: "pretraitement",       label: "Prétraitement",       w: 230, kind: "long" },
+    { key: "pipeline",            label: "Pipeline",            w: 300, kind: "long" },
+    { key: "entrainement",        label: "Entraînement",        w: 230, kind: "long" },
+    { key: "validation",          label: "Validation",          w: 230, kind: "long" },
+    { key: "resultats",           label: "Résultats",           w: 280, kind: "long" },
+    { key: "metriques_detection", label: "Métriques détection", w: 210, kind: "long" },
+    { key: "metriques_collision", label: "Métriques collision", w: 210, kind: "long" },
+    { key: "limites",             label: "Limites",             w: 260, kind: "long" },
+    { key: "interet_pfe",         label: "Intérêt pour le PFE", w: 300, kind: "long" },
+  ];
 
+  // Sections du panneau latéral
+  const PANEL_SECTIONS = [
+    ["Données", [["quelles_images", "Quelles images"], ["combien_images", "Combien d'images"], ["annotation", "Annotation"], ["pretraitement", "Prétraitement"]]],
+    ["Méthode", [["pipeline", "Pipeline"], ["modele_detection", "Modèle de détection"], ["transfer_learning", "Transfer learning"], ["entrainement", "Entraînement"], ["validation", "Validation"]]],
+    ["Résultats", [["resultats", "Résultats"], ["metriques_detection", "Métriques détection"], ["metriques_collision", "Métriques collision"]]],
+    ["Analyse", [["limites", "Limites"]]],
+  ];
+
+  /* ===== Outils ===== */
+  const $ = (id) => document.getElementById(id);
   const toText = (v) => v == null ? "" : Array.isArray(v) ? v.join(", ") : String(v);
-  const norm = (s) => toText(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const norm = (s) => toText(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  const esc = (s) => toText(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const URL_RE = /https?:\/\/[^\s<>"]+/g;
+  const trimUrl = (u) => u.replace(/[).,;:]+$/, "");
+  // Échappe le texte puis transforme les URL http(s) en liens
+  const linkify = (s) => esc(s).replace(URL_RE, (u) => {
+    const url = trimUrl(u);
+    return `<a href="${url}" target="_blank" rel="noopener">${url}</a>${u.slice(url.length)}`;
+  });
+  const firstUrl = (s) => { const m = toText(s).match(URL_RE); return m ? trimUrl(m[0]) : ""; };
+
+  const themeOf = (a) => THEMES.find(t => t.key === norm(a.tache));
+  const themeColor = (a) => (themeOf(a) || {}).color || "var(--t-autre)";
+  const keywords = (a) => {
+    const k = a.mots_cles;
+    if (Array.isArray(k)) return k.map(x => toText(x).trim()).filter(Boolean);
+    return toText(k).split(/[,;]/).map(x => x.trim()).filter(Boolean);
+  };
   const readers = (a) => toText(a.lu_par).split(/[,;/]/).map(s => s.trim()).filter(Boolean);
   const statusClass = (s) => ({ "a lire": "st-alire", "en cours": "st-encours", "lu": "st-lu" })[norm(s)] || "";
-  const esc = (s) => toText(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  const safeUrl = (u) => /^https?:\/\//i.test(toText(u).trim()) ? toText(u).trim() : null;
+  const statusRank = (s) => { const i = ["a lire", "en cours", "lu"].indexOf(norm(s)); return i < 0 ? 99 : i; };
+  // Teinte stable pour chaque mot-clé
+  const hue = (s) => { let h = 0; for (const c of norm(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % 360; };
 
-  function renderHead() {
-    $("head").innerHTML = FIELDS.map(([k, label]) => {
-      const active = state.sortKey === k;
-      const arrow = active ? (state.sortDir === 1 ? "▲" : "▼") : "";
-      const aria = active ? (state.sortDir === 1 ? "ascending" : "descending") : "none";
-      return `<th data-key="${k}" tabindex="0" aria-sort="${aria}">${label} <span class="arrow">${arrow}</span></th>`;
-    }).join("");
+  const NO_READER = "__aucun__";
+
+  /* ===== État ===== */
+  const state = {
+    data: [], sortKey: "id", sortDir: 1,
+    q: "", theme: "", mot: "", statut: "", lecteur: "",
+    openIdx: null, expanded: new Set(), lastFocus: null,
+  };
+
+  /* ===== Petits éléments ===== */
+  const stars = (v) => {
+    const n = Math.max(0, Math.min(3, parseInt(v, 10) || 0));
+    if (!n) return `<span class="muted">—</span>`;
+    return `<span class="stars" role="img" aria-label="Pertinence ${n} sur 3">${"★".repeat(n)}<span class="off">${"★".repeat(3 - n)}</span></span>`;
+  };
+  const badge = (s) => toText(s) ? `<span class="badge ${statusClass(s)}">${esc(s)}</span>` : `<span class="muted">—</span>`;
+  const themePill = (a) => `<span class="theme-pill" style="--c:${themeColor(a)}">${esc(a.tache || "—")}</span>`;
+  const tagButtons = (a) => keywords(a).map(t =>
+    `<button type="button" class="tag${state.mot && norm(t) === norm(state.mot) ? " active" : ""}" style="--h:${hue(t)}" data-mot="${esc(t)}" title="Filtrer sur « ${esc(t)} »">${esc(t)}</button>`
+  ).join("");
+
+  function cellHtml(col, a, rowIdx) {
+    const v = a[col.key];
+    switch (col.kind) {
+      case "title": {
+        const meta = [a.auteurs, a.venue].filter(x => toText(x)).map(esc).join(" · ");
+        const tags = tagButtons(a);
+        return `<div class="t-title">${esc(v || "(sans titre)")}</div>` +
+               (meta ? `<div class="t-meta">${meta}</div>` : "") +
+               (tags ? `<div class="tags">${tags}</div>` : "");
+      }
+      case "theme":  return themePill(a);
+      case "stars":  return stars(v);
+      case "status": return badge(v);
+      case "long": {
+        if (!toText(v)) return `<span class="muted">—</span>`;
+        const id = `${rowIdx}:${col.key}`;
+        const open = state.expanded.has(id);
+        return `<div class="clamp${open ? " open" : ""}">${linkify(v)}</div>` +
+               `<button type="button" class="more" data-id="${id}" aria-expanded="${open}" hidden>${open ? "voir moins" : "voir plus"}</button>`;
+      }
+      default:
+        return toText(v) ? esc(v) : `<span class="muted">—</span>`;
+    }
   }
 
-  function fillFilters() {
-    const statuts = [...new Set([...STATUTS, ...state.data.map(a => toText(a.statut)).filter(Boolean)])];
-    $("f-statut").innerHTML = `<option value="">Tous les statuts</option>` +
-      statuts.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
-    const lecteurs = [...new Set(state.data.flatMap(readers))].sort((a, b) => a.localeCompare(b, "fr"));
-    $("f-lecteur").innerHTML = `<option value="">Tous les lecteurs</option>` +
-      lecteurs.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  /* ===== Tableau ===== */
+  function renderStructure() {
+    $("cols").innerHTML = COLUMNS.map(c => `<col style="width:${c.w ? c.w + "px" : "var(--title-col)"}">`).join("");
+    const total = COLUMNS.reduce((s, c) => s + c.w, 0);
+    $("table").style.width = `calc(${total}px + var(--title-col))`;
+    renderHead();
+  }
+
+  function renderHead() {
+    $("head").innerHTML = COLUMNS.map(c => {
+      const active = state.sortKey === c.key;
+      const aria = active ? (state.sortDir === 1 ? "ascending" : "descending") : "none";
+      const arrow = active ? (state.sortDir === 1 ? "▲" : "▼") : "";
+      return `<th scope="col" aria-sort="${aria}"><button type="button" data-key="${c.key}">${c.label}<span class="arrow" aria-hidden="true">${arrow}</span></button></th>`;
+    }).join("");
   }
 
   function compare(a, b) {
-    const k = state.sortKey;
-    const va = a[k], vb = b[k];
-    if (k === "statut") {
-      const ia = STATUTS.indexOf(norm(va).replace("a lire", "à lire"));
-      const ib = STATUTS.indexOf(norm(vb).replace("a lire", "à lire"));
-      return (ia - ib) * state.sortDir;
+    const k = state.sortKey, d = state.sortDir;
+    if (k === "statut") return (statusRank(a.statut) - statusRank(b.statut)) * d;
+    if (k === "tache") {
+      const r = (x) => { const i = THEMES.findIndex(t => t.key === norm(x.tache)); return i < 0 ? 99 : i; };
+      return (r(a) - r(b)) * d;
     }
-    const empty = (v) => v == null || toText(v) === "";
+    const va = a[k], vb = b[k];
+    const empty = (v) => toText(v).trim() === "";
     if (empty(va) && empty(vb)) return 0;
-    if (empty(va)) return 1;          // vides toujours en bas
+    if (empty(va)) return 1;   // les cases vides restent en bas
     if (empty(vb)) return -1;
     const na = Number(va), nb = Number(vb);
-    if (!isNaN(na) && !isNaN(nb)) return (na - nb) * state.sortDir;
-    return toText(va).localeCompare(toText(vb), "fr", { sensitivity: "base", numeric: true }) * state.sortDir;
+    if (!isNaN(na) && !isNaN(nb)) return (na - nb) * d;
+    return toText(va).localeCompare(toText(vb), "fr", { sensitivity: "base", numeric: true }) * d;
   }
 
-  function filtered() {
-    const q = norm(state.q).trim();
+  function visibleRows() {
+    const q = norm(state.q);
     return state.data
       .map((a, i) => ({ a, i }))
+      .filter(({ a }) => !state.theme || norm(a.tache) === state.theme)
+      .filter(({ a }) => !state.mot || keywords(a).some(k => norm(k) === norm(state.mot)))
       .filter(({ a }) => !state.statut || norm(a.statut) === norm(state.statut))
-      .filter(({ a }) => !state.lecteur || readers(a).includes(state.lecteur))
-      .filter(({ a }) => !q || FIELDS.some(([k]) => norm(a[k]).includes(q)))
-      .sort((x, y) => compare(x.a, y.a));
-  }
-
-  function cell(k, v) {
-    if (k === "statut" && toText(v)) return `<span class="badge ${statusClass(v)}">${esc(v)}</span>`;
-    if (k === "lien") {
-      const u = safeUrl(v);
-      return u ? `<a href="${esc(u)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(u)}</a>` : esc(v);
-    }
-    return esc(v);
+      .filter(({ a }) => !state.lecteur || (state.lecteur === NO_READER ? !readers(a).length : readers(a).includes(state.lecteur)))
+      .filter(({ a }) => !q || norm(a.titre).includes(q) || keywords(a).some(k => norm(k).includes(q)))
+      .sort((x, y) => compare(x.a, y.a) || (x.i - y.i));
   }
 
   function renderBody() {
-    const rows = filtered();
-    $("count").textContent = `${rows.length} / ${state.data.length} article${state.data.length > 1 ? "s" : ""}`;
+    const rows = visibleRows();
+    const n = state.data.length;
+    $("count").textContent = `${rows.length} / ${n} article${n > 1 ? "s" : ""}`;
     if (!rows.length) {
-      $("body").innerHTML = `<tr><td colspan="${FIELDS.length}" class="empty">Aucun article ne correspond.</td></tr>`;
+      $("body").innerHTML = `<tr><td colspan="${COLUMNS.length}" class="empty">Aucun article ne correspond aux filtres.</td></tr>`;
       return;
     }
     $("body").innerHTML = rows.map(({ a, i }) =>
-      `<tr data-idx="${i}" tabindex="0" class="${state.openIdx === i ? "selected" : ""}">` +
-      FIELDS.map(([k]) => `<td class="${NARROW.has(k) ? "narrow" : ""}"><div class="cell" title="${esc(a[k])}">${cell(k, a[k])}</div></td>`).join("") +
+      `<tr data-idx="${i}" tabindex="0" style="--c:${themeColor(a)}" class="${state.openIdx === i ? "selected" : ""}">` +
+      COLUMNS.map(c => `<td>${cellHtml(c, a, i)}</td>`).join("") +
       `</tr>`
+    ).join("");
+    updateMoreButtons();
+  }
+
+  // N'affiche « voir plus » que là où le texte dépasse 4 lignes
+  function updateMoreButtons() {
+    document.querySelectorAll("#body .clamp").forEach(el => {
+      const btn = el.nextElementSibling;
+      if (!btn) return;
+      btn.hidden = !el.classList.contains("open") && el.scrollHeight <= el.clientHeight + 1;
+    });
+  }
+
+  /* ===== Légende et filtres ===== */
+  function renderLegend() {
+    const counts = {};
+    state.data.forEach(a => { const k = norm(a.tache); counts[k] = (counts[k] || 0) + 1; });
+    const extra = Object.keys(counts).filter(k => k && !THEMES.some(t => t.key === k));
+    const items = [...THEMES, ...extra.map(k => ({ key: k, label: k, color: "var(--t-autre)" }))];
+    $("legend").innerHTML = `<span class="legend-label">Thèmes :</span>` + items.map(t =>
+      `<button type="button" class="theme-btn" data-theme="${esc(t.key)}" aria-pressed="${state.theme === t.key}" style="--c:${t.color}">` +
+      `<span class="dot" aria-hidden="true"></span>${esc(t.label)} <span class="n">${counts[t.key] || 0}</span></button>`
     ).join("");
   }
 
+  function fillFilters() {
+    const opt = (v, l, sel) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(l)}</option>`;
+
+    const mots = new Map();
+    state.data.flatMap(keywords).forEach(k => { if (!mots.has(norm(k))) mots.set(norm(k), k); });
+    const motsList = [...mots.values()].sort((a, b) => a.localeCompare(b, "fr"));
+    $("f-mot").innerHTML = opt("", motsList.length ? "Tous les mots-clés" : "Aucun mot-clé") +
+      motsList.map(k => opt(k, k, k === state.mot)).join("");
+    $("f-mot").disabled = !motsList.length;
+
+    const statuts = [...new Set([...STATUTS, ...state.data.map(a => toText(a.statut).trim()).filter(Boolean)])];
+    $("f-statut").innerHTML = opt("", "Tous les statuts") + statuts.map(s => opt(s, s, s === state.statut)).join("");
+
+    const lecteurs = [...new Set(state.data.flatMap(readers))].sort((a, b) => a.localeCompare(b, "fr"));
+    const hasNone = state.data.some(a => !readers(a).length);
+    $("f-lecteur").innerHTML = opt("", "Tous les lecteurs") +
+      lecteurs.map(l => opt(l, l, l === state.lecteur)).join("") +
+      (hasNone ? opt(NO_READER, "Personne encore", state.lecteur === NO_READER) : "");
+  }
+
+  function refresh() { renderLegend(); renderBody(); }
+
+  /* ===== Panneau latéral ===== */
   function openPanel(idx) {
     const a = state.data[idx];
     if (!a) return;
-    state.lastFocus = document.activeElement;
+    if (state.openIdx === null) state.lastFocus = document.activeElement;
     state.openIdx = idx;
-    $("panel-title").textContent = toText(a.titre) || "(sans titre)";
-    $("panel-content").innerHTML = FIELDS.filter(([k]) => k !== "titre").map(([k, label]) => {
-      const v = a[k];
-      let html = toText(v) === "" ? `<span class="muted">—</span>` : cell(k, v);
-      return `<dt>${label}</dt><dd>${html}</dd>`;
-    }).join("");
-    $("panel").hidden = false;
+    const panel = $("panel");
+    panel.style.setProperty("--c", themeColor(a));
+
+    $("p-title").textContent = toText(a.titre) || "(sans titre)";
+    $("p-sub").textContent = [a.auteurs, a.venue, a.annee].filter(x => toText(x)).join(" · ");
+    $("p-badges").innerHTML = [
+      themePill(a),
+      toText(a.type) ? `<span class="muted">${esc(a.type)}</span>` : "",
+      stars(a.pertinence),
+      badge(a.statut),
+      `<span class="muted">Lu par : ${esc(readers(a).join(", ") || "personne encore")}</span>`,
+    ].filter(Boolean).join("");
+    $("p-tags").innerHTML = tagButtons(a);
+
+    const links = [];
+    const art = firstUrl(a.lien);
+    if (art) links.push(`<a class="link-btn" href="${esc(art)}" target="_blank" rel="noopener">📄 Article</a>`);
+    const code = firstUrl(a.code);
+    if (code) links.push(`<a class="link-btn" href="${esc(code)}" target="_blank" rel="noopener">💻 Code</a>`);
+    $("p-links").innerHTML = links.join("");
+
+    let html = "";
+    if (toText(a.interet_pfe)) html += `<div class="interet"><strong>Intérêt pour le PFE</strong><br>${linkify(a.interet_pfe)}</div>`;
+    for (const [title, fields] of PANEL_SECTIONS) {
+      html += `<h3>${title}</h3><dl>` + fields.map(([k, l]) =>
+        `<dt>${l}</dt><dd>${toText(a[k]) ? linkify(a[k]) : '<span class="muted">—</span>'}</dd>`).join("") + `</dl>`;
+    }
+    const linkFields = [["lien", "Lien de l'article"], ["code", "Code / données"]].filter(([k]) => toText(a[k]));
+    if (linkFields.length) {
+      html += `<h3>Liens</h3><dl>` + linkFields.map(([k, l]) => `<dt>${l}</dt><dd>${linkify(a[k])}</dd>`).join("") + `</dl>`;
+    }
+    $("p-body").innerHTML = html;
+    $("p-body").scrollTop = 0;
+
+    panel.hidden = false;
     requestAnimationFrame(() => document.body.classList.add("panel-open"));
     $("close").focus();
-    renderBody();
+    document.querySelectorAll("#body tr.selected").forEach(tr => tr.classList.remove("selected"));
+    const tr = document.querySelector(`#body tr[data-idx="${idx}"]`);
+    if (tr) tr.classList.add("selected");
   }
 
   function closePanel() {
     document.body.classList.remove("panel-open");
     state.openIdx = null;
-    setTimeout(() => { if (!document.body.classList.contains("panel-open")) $("panel").hidden = true; }, 220);
-    renderBody();
+    document.querySelectorAll("#body tr.selected").forEach(tr => tr.classList.remove("selected"));
+    setTimeout(() => { if (!document.body.classList.contains("panel-open")) $("panel").hidden = true; }, 250);
     if (state.lastFocus && document.contains(state.lastFocus)) state.lastFocus.focus();
   }
 
-  function setSort(k) {
-    if (state.sortKey === k) state.sortDir *= -1;
-    else { state.sortKey = k; state.sortDir = 1; }
-    renderHead(); renderBody();
+  /* ===== Événements ===== */
+  function setMot(m) {
+    state.mot = state.mot && norm(m) === norm(state.mot) ? "" : m;
+    $("f-mot").value = state.mot;
+    renderBody();
   }
 
-  // Événements
-  $("head").addEventListener("click", e => { const th = e.target.closest("th"); if (th) setSort(th.dataset.key); });
-  $("head").addEventListener("keydown", e => {
-    if ((e.key === "Enter" || e.key === " ") && e.target.matches("th")) { e.preventDefault(); setSort(e.target.dataset.key); }
+  $("head").addEventListener("click", e => {
+    const b = e.target.closest("button[data-key]");
+    if (!b) return;
+    const k = b.dataset.key;
+    if (state.sortKey === k) state.sortDir *= -1;
+    else { state.sortKey = k; state.sortDir = k === "pertinence" ? -1 : 1; } // pertinence : la plus haute d'abord
+    renderHead(); renderBody();
   });
-  $("body").addEventListener("click", e => { const tr = e.target.closest("tr[data-idx]"); if (tr) openPanel(+tr.dataset.idx); });
-  $("body").addEventListener("keydown", e => {
+
+  $("body").addEventListener("click", e => {
+    const more = e.target.closest(".more");
+    if (more) {
+      const el = more.previousElementSibling;
+      const open = !el.classList.contains("open");
+      el.classList.toggle("open", open);
+      more.textContent = open ? "voir moins" : "voir plus";
+      more.setAttribute("aria-expanded", open);
+      open ? state.expanded.add(more.dataset.id) : state.expanded.delete(more.dataset.id);
+      return;
+    }
+    const tag = e.target.closest(".tag");
+    if (tag) { setMot(tag.dataset.mot); return; }
+    if (e.target.closest("a")) return;
     const tr = e.target.closest("tr[data-idx]");
-    if (tr && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openPanel(+tr.dataset.idx); }
+    if (tr) openPanel(+tr.dataset.idx);
   });
+  $("body").addEventListener("keydown", e => {
+    if (e.target.matches("tr[data-idx]") && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault(); openPanel(+e.target.dataset.idx);
+    }
+  });
+
+  $("legend").addEventListener("click", e => {
+    const b = e.target.closest(".theme-btn");
+    if (!b) return;
+    state.theme = state.theme === b.dataset.theme ? "" : b.dataset.theme;
+    refresh();
+  });
+
+  $("p-tags").addEventListener("click", e => {
+    const tag = e.target.closest(".tag");
+    if (tag) { closePanel(); setMot(tag.dataset.mot); }
+  });
+
   $("q").addEventListener("input", e => { state.q = e.target.value; renderBody(); });
+  $("f-mot").addEventListener("change", e => { state.mot = e.target.value; renderBody(); });
   $("f-statut").addEventListener("change", e => { state.statut = e.target.value; renderBody(); });
   $("f-lecteur").addEventListener("change", e => { state.lecteur = e.target.value; renderBody(); });
+  $("reset").addEventListener("click", () => {
+    Object.assign(state, { q: "", theme: "", mot: "", statut: "", lecteur: "" });
+    $("q").value = "";
+    fillFilters(); refresh();
+  });
+
   $("close").addEventListener("click", closePanel);
   $("backdrop").addEventListener("click", closePanel);
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && state.openIdx !== null) closePanel(); });
+  document.addEventListener("keydown", e => {
+    if (state.openIdx === null) return;
+    if (e.key === "Escape") { closePanel(); return; }
+    // Garde le focus clavier dans le panneau ouvert
+    if (e.key === "Tab") {
+      const f = [...$("panel").querySelectorAll("a, button")].filter(x => x.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
 
-  // Chargement
-  renderHead();
+  let rt;
+  window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(updateMoreButtons, 120); });
+
+  /* ===== Chargement ===== */
+  renderStructure();
   fetch("articles.json", { cache: "no-store" })
     .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
     .then(data => {
       if (!Array.isArray(data)) throw new Error("articles.json doit contenir une liste (tableau JSON).");
       state.data = data;
       fillFilters();
-      renderBody();
+      refresh();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateMoreButtons);
     })
     .catch(err => {
       const fileProto = location.protocol === "file:";
       $("wrap").innerHTML = `<div class="error"><strong>Impossible de charger <code>articles.json</code>.</strong><br>${esc(err.message)}` +
-        (fileProto ? `<br><br>La page est ouverte directement depuis le disque : le navigateur bloque la lecture du JSON.
-          Lancez un petit serveur dans ce dossier, par exemple <code>python -m http.server</code>, puis ouvrez
-          <code>http://localhost:8000</code>. Sur GitHub Pages, ça fonctionne tel quel.` : "") + `</div>`;
+        (fileProto
+          ? `<br><br>La page est ouverte directement depuis le disque : le navigateur bloque la lecture du JSON.
+             Lancez <code>python -m http.server</code> dans ce dossier puis ouvrez <code>http://localhost:8000</code>.
+             Sur GitHub Pages, ça fonctionne tel quel.`
+          : `<br><br>Vérifiez la syntaxe du fichier (virgule manquante ou en trop entre deux articles).`) + `</div>`;
     });
 })();
 </script>

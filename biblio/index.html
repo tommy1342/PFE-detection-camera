@@ -25,11 +25,6 @@
     --t-collision: #ff7a45;
     --t-autre: #8a93a6;
 
-    /* Statuts */
-    --st-alire: #9ba3b4;
-    --st-encours: #f2b84b;
-    --st-lu: #4fd18b;
-
     --star: #f5c542;
     --radius: 8px;
     --title-col: 320px;
@@ -180,15 +175,6 @@
   }
   .theme-pill::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--t-autre)); }
 
-  .badge {
-    display: inline-block; padding: 1px 9px;
-    border-radius: 999px; border: 1px solid currentColor;
-    font-size: 12px; white-space: nowrap;
-  }
-  .st-alire { color: var(--st-alire); }
-  .st-encours { color: var(--st-encours); }
-  .st-lu { color: var(--st-lu); }
-
   .stars { color: var(--star); letter-spacing: 1px; white-space: nowrap; font-size: 15px; }
   .stars .off { color: #4a5060; }
 
@@ -270,8 +256,6 @@
   <div class="controls">
     <input type="search" id="q" placeholder="Rechercher dans les titres et mots-clés…" aria-label="Rechercher dans les titres et mots-clés">
     <select id="f-mot" aria-label="Filtrer par mot-clé"></select>
-    <select id="f-statut" aria-label="Filtrer par statut"></select>
-    <select id="f-lecteur" aria-label="Filtrer par lecteur"></select>
     <button class="reset" id="reset" type="button">Réinitialiser</button>
   </div>
 </header>
@@ -312,15 +296,12 @@
     { key: "trajectoire", label: "Trajectoire", color: "var(--t-trajectoire)" },
     { key: "collision",   label: "Collision",   color: "var(--t-collision)" },
   ];
-  const STATUTS = ["à lire", "en cours", "lu"];
 
   // Colonnes du tableau : clé du JSON, libellé, largeur en px, type d'affichage
   const COLUMNS = [
     { key: "titre",               label: "Article",             w: 0,   kind: "title" }, // largeur = --title-col
     { key: "tache",               label: "Thème",               w: 120, kind: "theme" },
     { key: "pertinence",          label: "Pertinence",          w: 110, kind: "stars" },
-    { key: "statut",              label: "Statut",              w: 105, kind: "status" },
-    { key: "lu_par",              label: "Lu par",              w: 110 },
     { key: "annee",               label: "Année",               w: 90 },
     { key: "type",                label: "Type",                w: 140 },
     { key: "modele_detection",    label: "Modèle",              w: 200, kind: "long" },
@@ -368,18 +349,14 @@
     if (Array.isArray(k)) return k.map(x => toText(x).trim()).filter(Boolean);
     return toText(k).split(/[,;]/).map(x => x.trim()).filter(Boolean);
   };
-  const readers = (a) => toText(a.lu_par).split(/[,;/]/).map(s => s.trim()).filter(Boolean);
-  const statusClass = (s) => ({ "a lire": "st-alire", "en cours": "st-encours", "lu": "st-lu" })[norm(s)] || "";
-  const statusRank = (s) => { const i = ["a lire", "en cours", "lu"].indexOf(norm(s)); return i < 0 ? 99 : i; };
   // Teinte stable pour chaque mot-clé
   const hue = (s) => { let h = 0; for (const c of norm(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % 360; };
 
-  const NO_READER = "__aucun__";
 
   /* ===== État ===== */
   const state = {
     data: [], sortKey: "id", sortDir: 1,
-    q: "", theme: "", mot: "", statut: "", lecteur: "",
+    q: "", theme: "", mot: "",
     openIdx: null, expanded: new Set(), lastFocus: null,
   };
 
@@ -389,7 +366,6 @@
     if (!n) return `<span class="muted">—</span>`;
     return `<span class="stars" role="img" aria-label="Pertinence ${n} sur 3">${"★".repeat(n)}<span class="off">${"★".repeat(3 - n)}</span></span>`;
   };
-  const badge = (s) => toText(s) ? `<span class="badge ${statusClass(s)}">${esc(s)}</span>` : `<span class="muted">—</span>`;
   const themePill = (a) => `<span class="theme-pill" style="--c:${themeColor(a)}">${esc(a.tache || "—")}</span>`;
   const tagButtons = (a) => keywords(a).map(t =>
     `<button type="button" class="tag${state.mot && norm(t) === norm(state.mot) ? " active" : ""}" style="--h:${hue(t)}" data-mot="${esc(t)}" title="Filtrer sur « ${esc(t)} »">${esc(t)}</button>`
@@ -407,7 +383,6 @@
       }
       case "theme":  return themePill(a);
       case "stars":  return stars(v);
-      case "status": return badge(v);
       case "long": {
         if (!toText(v)) return `<span class="muted">—</span>`;
         const id = `${rowIdx}:${col.key}`;
@@ -439,7 +414,6 @@
 
   function compare(a, b) {
     const k = state.sortKey, d = state.sortDir;
-    if (k === "statut") return (statusRank(a.statut) - statusRank(b.statut)) * d;
     if (k === "tache") {
       const r = (x) => { const i = THEMES.findIndex(t => t.key === norm(x.tache)); return i < 0 ? 99 : i; };
       return (r(a) - r(b)) * d;
@@ -460,8 +434,6 @@
       .map((a, i) => ({ a, i }))
       .filter(({ a }) => !state.theme || norm(a.tache) === state.theme)
       .filter(({ a }) => !state.mot || keywords(a).some(k => norm(k) === norm(state.mot)))
-      .filter(({ a }) => !state.statut || norm(a.statut) === norm(state.statut))
-      .filter(({ a }) => !state.lecteur || (state.lecteur === NO_READER ? !readers(a).length : readers(a).includes(state.lecteur)))
       .filter(({ a }) => !q || norm(a.titre).includes(q) || keywords(a).some(k => norm(k).includes(q)))
       .sort((x, y) => compare(x.a, y.a) || (x.i - y.i));
   }
@@ -512,15 +484,6 @@
     $("f-mot").innerHTML = opt("", motsList.length ? "Tous les mots-clés" : "Aucun mot-clé") +
       motsList.map(k => opt(k, k, k === state.mot)).join("");
     $("f-mot").disabled = !motsList.length;
-
-    const statuts = [...new Set([...STATUTS, ...state.data.map(a => toText(a.statut).trim()).filter(Boolean)])];
-    $("f-statut").innerHTML = opt("", "Tous les statuts") + statuts.map(s => opt(s, s, s === state.statut)).join("");
-
-    const lecteurs = [...new Set(state.data.flatMap(readers))].sort((a, b) => a.localeCompare(b, "fr"));
-    const hasNone = state.data.some(a => !readers(a).length);
-    $("f-lecteur").innerHTML = opt("", "Tous les lecteurs") +
-      lecteurs.map(l => opt(l, l, l === state.lecteur)).join("") +
-      (hasNone ? opt(NO_READER, "Personne encore", state.lecteur === NO_READER) : "");
   }
 
   function refresh() { renderLegend(); renderBody(); }
@@ -540,8 +503,6 @@
       themePill(a),
       toText(a.type) ? `<span class="muted">${esc(a.type)}</span>` : "",
       stars(a.pertinence),
-      badge(a.statut),
-      `<span class="muted">Lu par : ${esc(readers(a).join(", ") || "personne encore")}</span>`,
     ].filter(Boolean).join("");
     $("p-tags").innerHTML = tagButtons(a);
 
@@ -634,10 +595,8 @@
 
   $("q").addEventListener("input", e => { state.q = e.target.value; renderBody(); });
   $("f-mot").addEventListener("change", e => { state.mot = e.target.value; renderBody(); });
-  $("f-statut").addEventListener("change", e => { state.statut = e.target.value; renderBody(); });
-  $("f-lecteur").addEventListener("change", e => { state.lecteur = e.target.value; renderBody(); });
   $("reset").addEventListener("click", () => {
-    Object.assign(state, { q: "", theme: "", mot: "", statut: "", lecteur: "" });
+    Object.assign(state, { q: "", theme: "", mot: "" });
     $("q").value = "";
     fillFilters(); refresh();
   });

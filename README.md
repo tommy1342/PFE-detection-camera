@@ -2,7 +2,7 @@
 
 ## 📊 [Ouvrir le tableau des articles](https://tommy1342.github.io/PFE-detection-camera/biblio/)
 
-Tableau interactif de l'état de l'art : tri par colonne, recherche, filtres par statut et par lecteur, clic sur une ligne pour voir la fiche complète.
+Tableau interactif de l'état de l'art : tri par colonne, recherche, filtres par thème et par mot-clé, clic sur une ligne pour voir la fiche complète.
 
 ## Contenu du dépôt
 
@@ -34,9 +34,6 @@ Tableau interactif de l'état de l'art : tri par colonne, recherche, filtres par
 | `resultats` | Résultats chiffrés principaux |
 | `limites` | Limites relevées |
 | `metriques_collision` | Métriques liées à la collision (TTC, fausses alertes…) |
-| `statut` | `à lire`, `en cours` ou `lu` |
-| `lu_par` | Prénom du lecteur (plusieurs : séparer par des virgules) |
-
 4. Enregistrer, puis publier :
 
 ```
